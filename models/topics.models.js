@@ -14,8 +14,11 @@ exports.selectAllEndpoints = () => {
 }
 
 exports.selectAllTopics = () => {
-    const queryStr = `SELECT *
-    FROM topics`;
-
+    const queryStr = `SELECT * FROM topics`;
     return db.query(queryStr).then(({ rows }) => rows);
 };
+
+exports.selectArticleById = (article_id) => {
+    const queryStr = `SELECT * FROM articles WHERE articles.article_id = $1`
+    return db.query(queryStr, [article_id]).then(({ rows }) => rows[0])
+}
