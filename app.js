@@ -1,24 +1,21 @@
 const express = require('express');
 const app = express();
 app.use(express.json());
-const { getTopics, getEndpoints } = require('./controllers/topics.controllers.js')
+const { getTopics, getEndpoints, getArticleById } = require('./controllers/topics.controllers.js')
+const {
+    handleCustomErrors,
+    handlePsqlErrors,
+    handleServerErrors,
+    handle404NotFound
+} = require('./errors/index.js');
 
 app.get('/api/topics', getTopics)
 app.get('/api', getEndpoints)
+app.get('/api/articles/:article_id', getArticleById)
 
-app.use((req, res, next) => {
-    const err = new Error('404 - Not Found');
-    err.status = 404;
-    next(err);
-})
-
-app.use((err, req, res, next) => {
-    if (err.status) {
-        res.status(err.status).send({ message: err.message });
-    } else {
-        res.status(500).send({ message: 'Internal Server Error' });
-    }
-})
-
+app.use(handle404NotFound);
+app.use(handleCustomErrors);
+app.use(handlePsqlErrors);
+app.use(handleServerErrors);
 
 module.exports = app;
