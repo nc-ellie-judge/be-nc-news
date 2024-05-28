@@ -64,4 +64,13 @@ describe('Error Handling', () => {
                 expect(body.message).toBe('404 - Not Found')
             })
     });
+
+    test('it responds with error message when valid but non-existent article_id is requested', () => {
+        return request(app)
+            .get('/api/articles/99985')
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.message).toBe('404 - Not Found')
+            })
+    });
 });
