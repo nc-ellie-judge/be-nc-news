@@ -7,6 +7,18 @@ const db = require('../db/connection.js')
 beforeEach(() => seed(testData))
 afterAll(() => db.end());
 
+describe('GET /api', () => {
+    test('should respond with an object describing all available endpoints on the API', () => {
+        return request(app)
+            .get('/api')
+            .expect(200)
+            .then(({ body }) => {
+                expect(body).toContainKeys(['endpoints']);
+                expect(body.endpoints["GET /api"].description).toBe("serves up a json representation of all the available endpoints of the api");
+            })
+    });
+});
+
 describe('GET /api/topics', () => {
     test('should return an array of topics', () => {
         return request(app)
