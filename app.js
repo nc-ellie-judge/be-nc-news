@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 app.use(express.json());
-const { getTopics, getEndpoints, getArticleById } = require('./controllers/topics.controllers.js')
+const { getTopics, getEndpoints, getArticleById, getArticles } = require('./controllers/topics.controllers.js')
 const {
     handleCustomErrors,
     handlePsqlErrors,
@@ -12,6 +12,7 @@ const {
 app.get('/api/topics', getTopics)
 app.get('/api', getEndpoints)
 app.get('/api/articles/:article_id', getArticleById)
+app.get('/api/articles', getArticles)
 
 app.use(handle404NotFound);
 app.use(handleCustomErrors);

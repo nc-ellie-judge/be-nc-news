@@ -2,7 +2,19 @@ const {
     selectArticleById,
     selectAllEndpoints,
     selectAllTopics,
+    selectAllArticles
 } = require("../models/topics.models.js");
+
+exports.getArticles = (req, res, next) => {
+    selectAllArticles()
+        .then((articles) => {
+            res.status(200).send({ articles })
+        })
+        .catch((err) => {
+            console.log("hi", err);
+            next(err)
+        })
+}
 
 exports.getEndpoints = (req, res, next) => {
     selectAllEndpoints()
