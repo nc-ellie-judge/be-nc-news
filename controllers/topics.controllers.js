@@ -27,11 +27,18 @@ exports.getTopics = (req, res, next) => {
 exports.getArticleById = (req, res, next) => {
     const { article_id } = req.params;
 
-    selectArticleById(article_id)
-        .then((article) => {
-            return res.status(200).send({ article });
-        })
-        .catch((err) => {
-            next(err);
-        });
+    if (isNaN(Number(article_id))) {
+        const err = new Error('400 - Bad Request')
+        err.status = 400
+        return next(err)
+    }
+    else {
+        selectArticleById(article_id)
+            .then((article) => {
+                return res.status(200).send({ article });
+            })
+            .catch((err) => {
+                next(err);
+            });
+    }
 };
