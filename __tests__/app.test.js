@@ -19,3 +19,15 @@ describe('GET /api/topics', () => {
             })
     });
 });
+
+
+describe('Error Handling', () => {
+    test('it responds with error message when non-existent endpoint is requested', () => {
+        return request(app)
+            .get('/api/bananas')
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.message).toBe('404 - Not Found')
+            })
+    });
+});
