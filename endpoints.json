@@ -64,5 +64,19 @@
         "created_at": "2020-10-31T03:03:00.000Z"
       }]
     }
+  },
+  "POST /api/articles/:article_id/comments": {
+    "description": "posts a new comment with specified article_id",
+    "queries": [],
+    "exampleResponse": {
+      "comment": {
+        "comment_id": 19,
+        "body": "A new comment!",
+        "article_id": 1,
+        "author": "icellusedkars",
+        "votes": 0,
+        "created_at": "2020-11-03T21:00:00.000Z"
+      }
+    }
   }
 }
