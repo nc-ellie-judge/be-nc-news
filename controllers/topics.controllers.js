@@ -2,16 +2,53 @@ const {
     selectArticleById,
     selectAllEndpoints,
     selectAllTopics,
-    selectAllArticles
+    selectAllArticles,
+    selectCommentsByArticleId,
+    insertNewComment
 } = require("../models/topics.models.js");
+
+exports.postNewComment = (req, res, next) => {
+
+    const { article_id } = req.params;
+
+    if (isNaN(Number(article_id))) {
+        const err = new Error('400 - Bad Request')
+        err.status = 400
+        return next(err)
+    }
+    else {
+        const newComment = req.body
+
+        insertNewComment(article_id, newComment)
+            .then((comments) => {
+                return res.status(201).send({ comment: comments })
+            })
+            .catch((err) => {
+                next(err)
+            })
+    }
+
+}
+
+exports.getCommentsByArticleId = (req, res, next) => {
+
+    const { article_id } = req.params
+
+    selectCommentsByArticleId(article_id)
+        .then((comments) => {
+            return res.status(200).send({ comments })
+        })
+        .catch((err) => {
+            next(err)
+        })
+}
 
 exports.getArticles = (req, res, next) => {
     selectAllArticles()
         .then((articles) => {
-            res.status(200).send({ articles })
+            return res.status(200).send({ articles })
         })
         .catch((err) => {
-            console.log("hi", err);
             next(err)
         })
 }
@@ -19,7 +56,7 @@ exports.getArticles = (req, res, next) => {
 exports.getEndpoints = (req, res, next) => {
     selectAllEndpoints()
         .then((endpoints) => {
-            res.status(200).json(endpoints);
+            return res.status(200).json(endpoints);
         })
         .catch((err) => {
             next(err);
