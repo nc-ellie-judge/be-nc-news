@@ -10,7 +10,6 @@ const {
 
 exports.patchArticle = (req, res, next) => {
     const { article_id } = req.params;
-
     const patch = req.body
 
     updateArticle(article_id, patch)
