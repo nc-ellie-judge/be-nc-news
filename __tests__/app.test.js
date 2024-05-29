@@ -10,11 +10,9 @@ afterAll(() => db.end());
 describe('PATCH /api/articles/:article_id', () => {
 
     test('200 - patch an article by article_id', () => {
-
         const newPatch = {
             inc_votes: 1
         }
-
         return request(app)
             .patch('/api/articles/1').send(newPatch)
             .expect(200)
