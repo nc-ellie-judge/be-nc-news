@@ -1,8 +1,4 @@
-const {
-    selectArticleById,
-    selectAllArticles,
-    updateArticle,
-} = require("../models/topics.models.js");
+const { selectArticleById, selectAllArticles, updateArticle } = require("../models");
 
 exports.patchArticle = (req, res, next) => {
     const { article_id } = req.params;

@@ -1,4 +1,4 @@
-const { selectAllEndpoints } = require("../models/topics.models.js");
+const { selectAllEndpoints } = require("../models/");
 
 exports.getEndpoints = (req, res, next) => {
     selectAllEndpoints()

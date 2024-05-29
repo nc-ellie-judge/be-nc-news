@@ -1,8 +1,4 @@
-const {
-    selectCommentsByArticleId,
-    insertNewComment,
-} = require("../models/topics.models.js");
-
+const { selectCommentsByArticleId, insertNewComment } = require("../models");
 
 exports.postNewComment = (req, res, next) => {
     const { article_id } = req.params;
