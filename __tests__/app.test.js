@@ -7,6 +7,25 @@ const db = require('../db/connection.js')
 beforeEach(() => seed(testData))
 afterAll(() => db.end());
 
+describe('PATCH /api/articles/:article_id', () => {
+    test('201 - update an article by article_id', () => {
+
+        const newPatch = {
+            inc_votes: 1
+        }
+
+        return request(app)
+            .patch('/api/articles/1').send(newPatch)
+            .expect(200)
+            .then(({ body }) => {
+                expect(body).toContainKeys(["article"])
+                expect(body.article.votes).not.toBe(100)
+                expect(body.article.votes).toBe(101)
+                expect(body.article.article_id).toBe(1)
+            })
+    });
+});
+
 describe('POST /api/articles/:article_id/comments', () => {
     test('201 - should add a new comment for an article', () => {
         const newComment = {

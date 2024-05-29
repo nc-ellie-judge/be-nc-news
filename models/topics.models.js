@@ -2,6 +2,23 @@ const { log } = require("console");
 const db = require("../db/connection.js");
 const fsPromises = require('fs').promises;
 
+exports.updateArticle = (article_id, patch) => {
+
+    const validPatches = ["inc_votes"]
+
+    if (!validPatches.includes(Object.keys(patch)[0])) {
+        console.log("naughty!");
+    }
+
+    const queryStr = `UPDATE articles
+    SET votes = votes + $1
+    WHERE article_id = $2 RETURNING *;`
+
+    return db.query(queryStr, [patch.inc_votes, article_id]).then(({ rows }) => {
+        return rows[0]
+    })
+}
+
 exports.insertNewComment = (article_id, newComment) => {
     const expectedKeys = ["body", "username"];
     const hasAllKeys = expectedKeys.every((key) =>
