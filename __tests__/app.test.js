@@ -157,7 +157,7 @@ describe('Error Handling', () => {
             })
     });
 
-    test.only('400 - it responds with error message when an invalid article_id is requested', () => {
+    test('400 - it responds with error message when an invalid article_id is requested', () => {
         return request(app)
             .get('/api/articles/potatoes/comments')
             .expect(400)
