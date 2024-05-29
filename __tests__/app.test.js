@@ -8,7 +8,7 @@ beforeEach(() => seed(testData))
 afterAll(() => db.end());
 
 describe('GET /api/articles/:article_id/comments', () => {
-    test('it responds with an array of comments for the given article_id', () => {
+    test('200 - it responds with an array of comments for the given article_id', () => {
         return request(app)
             .get('/api/articles/1/comments')
             .expect(200)
@@ -28,7 +28,7 @@ describe('GET /api/articles/:article_id/comments', () => {
                 })
             })
     });
-    test('comments should be served with the most recent comments first', () => {
+    test('200 - comments should be served with the most recent comments first', () => {
         return request(app)
             .get('/api/articles/1/comments')
             .expect(200)
@@ -37,10 +37,18 @@ describe('GET /api/articles/:article_id/comments', () => {
                 expect(body.comments).toBeSortedBy('created_at', { descending: true })
             })
     });
+    test('200 - it responds with empty array when valid article_id but no related comments', () => {
+        return request(app)
+            .get('/api/articles/10/comments')
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.comments.length).toBe(0)
+            })
+    });
 });
 
 describe('GET /api/articles', () => {
-    test('should respond with an articles array of article objects', () => {
+    test('200 - should respond with an articles array of article objects', () => {
         return request(app)
             .get('/api/articles')
             .expect(200)
@@ -60,7 +68,7 @@ describe('GET /api/articles', () => {
                 })
             })
     });
-    test('should respond with an articles array sorted by descending date', () => {
+    test('200 - should respond with an articles array sorted by descending date', () => {
         return request(app)
             .get('/api/articles')
             .expect(200)
@@ -75,7 +83,7 @@ describe('GET /api/articles', () => {
 
 // Todo: 05: Consider what errors could occur with this endpoint, and make sure to test for them.
 describe('GET /api/articles/:article_id', () => {
-    test('should respond with an article object', () => {
+    test('200 - should respond with an article object', () => {
         return request(app)
             .get('/api/articles/1')
             .expect(200)
@@ -95,9 +103,8 @@ describe('GET /api/articles/:article_id', () => {
     });
 });
 
-
 describe('GET /api', () => {
-    test('should respond with an object describing all available endpoints on the API', () => {
+    test('200 - should respond with an object describing all available endpoints on the API', () => {
         const endpointsJSON = require('../endpoints.json')
         return request(app)
             .get('/api')
@@ -110,7 +117,7 @@ describe('GET /api', () => {
 });
 
 describe('GET /api/topics', () => {
-    test('should return an array of topics', () => {
+    test('200 - should return an array of topics', () => {
         return request(app)
             .get('/api/topics')
             .expect(200)
@@ -147,6 +154,15 @@ describe('Error Handling', () => {
             .expect(400)
             .then(({ body }) => {
                 expect(body.message).toBe('400 - Bad Request')
+            })
+    });
+
+    test.only('400 - it responds with error message when an invalid article_id is requested', () => {
+        return request(app)
+            .get('/api/articles/potatoes/comments')
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.message).toBe('400 - Invalid Input')
             })
     });
 });
