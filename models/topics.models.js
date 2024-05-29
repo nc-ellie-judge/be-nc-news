@@ -2,6 +2,15 @@ const db = require("../db/connection.js");
 const fs = require('fs');
 const fsPromises = require('fs').promises;
 
+exports.selectCommentsByArticleId = (article_id) => {
+    const queryStr = `SELECT * FROM comments WHERE comments.article_id = $1 ORDER BY created_at DESC`
+
+    return db.query(queryStr, [article_id]).then(({ rows }) => {
+        return rows
+    })
+
+}
+
 exports.selectAllArticles = () => {
     let queryStr = `SELECT articles.author, articles.title, 
     articles.article_id, articles.topic, articles.created_at, 

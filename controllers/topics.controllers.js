@@ -2,8 +2,22 @@ const {
     selectArticleById,
     selectAllEndpoints,
     selectAllTopics,
-    selectAllArticles
+    selectAllArticles,
+    selectCommentsByArticleId
 } = require("../models/topics.models.js");
+
+exports.getCommentsByArticleId = (req, res, next) => {
+
+    const { article_id } = req.params
+
+    selectCommentsByArticleId(article_id)
+        .then((comments) => {
+            res.status(200).send({ comments })
+        })
+        .catch((err) => {
+            next(err)
+        })
+}
 
 exports.getArticles = (req, res, next) => {
     selectAllArticles()
@@ -11,7 +25,6 @@ exports.getArticles = (req, res, next) => {
             res.status(200).send({ articles })
         })
         .catch((err) => {
-            console.log("hi", err);
             next(err)
         })
 }

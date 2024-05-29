@@ -7,6 +7,38 @@ const db = require('../db/connection.js')
 beforeEach(() => seed(testData))
 afterAll(() => db.end());
 
+describe('GET /api/articles/:article_id/comments', () => {
+    test('it responds with an array of comments for the given article_id', () => {
+        return request(app)
+            .get('/api/articles/1/comments')
+            .expect(200)
+            .then(({ body }) => {
+                expect(body).toContainKeys(['comments'])
+                expect(body.comments.length).toBe(11)
+                body.comments.forEach((comment) => {
+                    expect(comment).toMatchObject(
+                        {
+                            comment_id: expect.any(Number),
+                            body: expect.any(String),
+                            votes: expect.any(Number),
+                            author: expect.any(String),
+                            article_id: expect.any(Number),
+                            created_at: expect.any(String)
+                        })
+                })
+            })
+    });
+    test('comments should be served with the most recent comments first', () => {
+        return request(app)
+            .get('/api/articles/1/comments')
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.comments.length).toBe(11)
+                expect(body.comments).toBeSortedBy('created_at', { descending: true })
+            })
+    });
+});
+
 describe('GET /api/articles', () => {
     test('should respond with an articles array of article objects', () => {
         return request(app)
@@ -41,6 +73,7 @@ describe('GET /api/articles', () => {
     });
 });
 
+// Todo: 05: Consider what errors could occur with this endpoint, and make sure to test for them.
 describe('GET /api/articles/:article_id', () => {
     test('should respond with an article object', () => {
         return request(app)
@@ -90,7 +123,7 @@ describe('GET /api/topics', () => {
 });
 
 describe('Error Handling', () => {
-    test('it responds with error message when non-existent endpoint is requested', () => {
+    test('404 - it responds with error message when non-existent endpoint is requested', () => {
         return request(app)
             .get('/api/bananas')
             .expect(404)
@@ -99,7 +132,7 @@ describe('Error Handling', () => {
             })
     });
 
-    test('it responds with error message when valid but non-existent article_id is requested', () => {
+    test('404 - it responds with error message when valid but non-existent article_id is requested', () => {
         return request(app)
             .get('/api/articles/99985')
             .expect(404)
@@ -108,17 +141,7 @@ describe('Error Handling', () => {
             })
     });
 
-
-    test('it responds with error message when valid but non-existent article_id is requested', () => {
-        return request(app)
-            .get('/api/articles/99985')
-            .expect(404)
-            .then(({ body }) => {
-                expect(body.message).toBe('404 - Not Found')
-            })
-    });
-
-    test('it responds with error message when an invalid article_id is requested', () => {
+    test('400 - it responds with error message when an invalid article_id is requested', () => {
         return request(app)
             .get('/api/articles/notAnId')
             .expect(400)
