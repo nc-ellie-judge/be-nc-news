@@ -2,6 +2,37 @@ const { log } = require("console");
 const db = require("../db/connection.js");
 const fsPromises = require('fs').promises;
 
+exports.updateArticle = (article_id, patch) => {
+
+    const validPatches = ["inc_votes"]
+
+    if (!validPatches.includes(Object.keys(patch)[0])) {
+        return Promise.reject({ status: 400, message: "400 - Bad Request" })
+    }
+
+    return db.query(`SELECT * FROM articles WHERE article_id = $1`, [article_id])
+        .then(({ rows }) => {
+            if (rows.length === 0) {
+                return Promise.reject({ status: 404, message: "404 - Not Found" })
+            }
+            else {
+                const queryStr = `UPDATE articles
+                SET votes = votes + $1
+                WHERE article_id = $2 RETURNING *;`
+
+                return db.query(queryStr, [patch.inc_votes, article_id])
+                    .then(({ rows }) => {
+                        return rows[0]
+                    })
+            }
+        })
+        .catch((err) => {
+            return Promise.reject(err)
+        })
+
+
+}
+
 exports.insertNewComment = (article_id, newComment) => {
     const expectedKeys = ["body", "username"];
     const hasAllKeys = expectedKeys.every((key) =>

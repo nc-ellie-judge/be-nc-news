@@ -7,6 +7,131 @@ const db = require('../db/connection.js')
 beforeEach(() => seed(testData))
 afterAll(() => db.end());
 
+describe('PATCH /api/articles/:article_id', () => {
+
+    test('200 - patch an article by article_id', () => {
+
+        const newPatch = {
+            inc_votes: 1
+        }
+
+        return request(app)
+            .patch('/api/articles/1').send(newPatch)
+            .expect(200)
+            .then(({ body }) => {
+                expect(body).toContainKeys(["article"])
+                expect(body.article.votes).not.toBe(100)
+                expect(body.article.votes).toBe(101)
+                expect(body.article.article_id).toBe(1)
+            })
+    });
+
+    test('200 - can subtract votes', () => {
+
+        const newPatch = {
+            inc_votes: -100
+        }
+
+        return request(app)
+            .patch('/api/articles/1').send(newPatch)
+            .expect(200)
+            .then(({ body }) => {
+                expect(body).toContainKeys(["article"])
+                expect(body.article.votes).not.toBe(100)
+                expect(body.article.votes).toBe(0)
+                expect(body.article.article_id).toBe(1)
+            })
+    });
+
+    test('200 - can subtract votes from votes that are 0', () => {
+
+        const newPatch = {
+            inc_votes: -100
+        }
+
+        return request(app)
+            .patch('/api/articles/2').send(newPatch)
+            .expect(200)
+            .then(({ body }) => {
+                expect(body).toContainKeys(["article"])
+                expect(body.article.votes).not.toBe(0)
+                expect(body.article.votes).toBe(-100)
+                expect(body.article.article_id).toBe(2)
+            })
+    });
+
+    test('200 - ignores patches with extra keys', () => {
+
+        const newPatch = {
+            inc_votes: -100,
+            some_other_random_thing: 5
+        }
+
+        return request(app)
+            .patch('/api/articles/2').send(newPatch)
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.article.votes).toBe(-100)
+            })
+    });
+
+    test('400 - throws error if patch is missing required key', () => {
+
+        const newPatch = {
+            some_other_random_thing: 5
+        }
+
+        return request(app)
+            .patch('/api/articles/2').send(newPatch)
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.message).toBe("400 - Bad Request")
+            })
+    });
+
+    test('400 - throws error if valid patch but invalid article_id', () => {
+
+        const newPatch = {
+            inc_votes: 100
+        }
+
+        return request(app)
+            .patch('/api/articles/notAnId').send(newPatch)
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.message).toBe("400 - Invalid Input")
+            })
+    });
+
+    test('400 - throws error if patch has wrong property type', () => {
+
+        const newPatch = {
+            inc_votes: "puddings"
+        }
+
+        return request(app)
+            .patch('/api/articles/1').send(newPatch)
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.message).toBe("400 - Invalid Input")
+            })
+    });
+
+    test('404 - when given valid article_id that doesnt exist', () => {
+
+        const newPatch = {
+            inc_votes: 100
+        }
+
+        return request(app)
+            .patch('/api/articles/0').send(newPatch)
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.message).toBe("404 - Not Found")
+            })
+    });
+});
+
 describe('POST /api/articles/:article_id/comments', () => {
     test('201 - should add a new comment for an article', () => {
         const newComment = {
