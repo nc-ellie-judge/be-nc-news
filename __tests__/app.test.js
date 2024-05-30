@@ -14,6 +14,7 @@ describe('GET /api/users', () => {
             .expect(200)
             .then(({ body }) => {
                 expect(body).toHaveProperty(['users'])
+                expect(body.users.length).toBe(testData.userData.length)
                 body.users.forEach((user) => {
                     expect(user).toMatchObject({
                         username: expect.any(String),
