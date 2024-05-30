@@ -7,6 +7,23 @@ const db = require('../db/connection.js')
 beforeEach(() => seed(testData))
 afterAll(() => db.end());
 
+describe('GET /api/users', () => {
+    test('should get all users', () => {
+        return request(app)
+            .get('/api/users')
+            .then(({ body }) => {
+                expect(body).toHaveProperty(['users'])
+                body.users.forEach((user) => {
+                    expect(user).toMatchObject({
+                        username: expect.any(String),
+                        name: expect.any(String),
+                        avatar_url: expect.any(String)
+                    })
+                })
+            })
+    });
+});
+
 describe('DELETE /api/comments/:comment_id', () => {
     test('204 - should delete the given comment by comment_id', () => {
         return request(app)
