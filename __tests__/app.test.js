@@ -7,6 +7,22 @@ const db = require('../db/connection.js')
 beforeEach(() => seed(testData))
 afterAll(() => db.end());
 
+describe('GET /api/articles/:article_id (comment_count)', () => {
+    test('an article response object should include the specified articles comment_count', () => {
+        return request(app)
+            .get('/api/articles/1')
+            .expect(200)
+            .then(({ body }) => {
+                expect(body).toContainKeys(['article']);
+                expect(body.article).toMatchObject({
+                    article_id: 1,
+                    comment_count: expect.any(Number)
+                })
+                expect(body.article.comment_count).toBe(11)
+            })
+    });
+});
+
 describe('GET /api/articles (topic query)', () => {
     test('200 - should accept a topic query, which filters the articles by the topic value specified in the query', () => {
         return request(app)
@@ -17,6 +33,19 @@ describe('GET /api/articles (topic query)', () => {
                 expect(body.articles.length).toBe(testData.articleData.filter((article) => article.topic === 'cats').length)
                 body.articles.forEach((article) => {
                     expect(article.topic).toEqual('cats')
+                })
+                body.articles.forEach((article) => {
+                    expect(Object.keys(article)).toEqual([
+                        "author",
+                        "title",
+                        "article_id",
+                        "topic",
+                        "created_at",
+                        "votes",
+                        "article_img_url",
+                        "body",
+                        "comment_count",
+                    ])
                 })
             })
     });
@@ -427,12 +456,13 @@ describe('GET /api/articles/:article_id', () => {
             .expect(200)
             .then(({ body }) => {
                 expect(body).toContainKeys(['article']);
-                expect(body.article).toMatchObject({
+                expect(body.article).toEqual({
                     article_id: 1,
                     title: "Living in the shadow of a great man",
                     topic: 'mitch',
                     author: 'butter_bridge',
                     body: 'I find this existence challenging',
+                    comment_count: 11,
                     created_at: '2020-07-09T20:11:00.000Z',
                     votes: 100,
                     article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700'

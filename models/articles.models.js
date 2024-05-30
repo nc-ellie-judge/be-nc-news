@@ -1,8 +1,17 @@
 const db = require("../db/connection.js");
 
 exports.selectArticleById = (article_id) => {
-    const queryStr = `SELECT * FROM articles WHERE articles.article_id = $1`;
-    return db.query(queryStr, [article_id]).then(({ rows }) => {
+    const query = `SELECT articles.author, articles.title, 
+    articles.article_id, articles.topic, articles.created_at, articles.body,
+    articles.votes, articles.article_img_url,
+    COUNT(comments.comment_id)::integer AS comment_count
+    FROM articles
+    LEFT JOIN comments ON comments.article_id = articles.article_id 
+    WHERE articles.article_id=$1
+    GROUP BY articles.article_id
+    ORDER BY articles.created_at DESC;`
+
+    return db.query(query, [article_id]).then(({ rows }) => {
         if (rows.length === 0) {
             return Promise.reject({ status: 404, message: "404 - Not Found" });
         } else {
@@ -43,7 +52,7 @@ exports.updateArticle = (article_id, patch) => {
 exports.selectArticlesByTopic = ({ topic }) => {
     const query = `SELECT articles.author, articles.title, 
     articles.article_id, articles.topic, articles.created_at, 
-    articles.votes, articles.article_img_url,
+    articles.votes, articles.article_img_url, articles.body,
     COUNT(comments.comment_id) AS comment_count
     FROM articles
     LEFT JOIN comments ON comments.article_id = articles.article_id 
