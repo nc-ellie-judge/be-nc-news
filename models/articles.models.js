@@ -40,16 +40,32 @@ exports.updateArticle = (article_id, patch) => {
         });
 };
 
-exports.selectAllArticles = () => {
-    let queryStr = `SELECT articles.author, articles.title, 
+exports.selectAllArticles = ({ topic }) => {
+    let queryStrSelectJoin = `SELECT articles.author, articles.title, 
     articles.article_id, articles.topic, articles.created_at, 
     articles.votes, articles.article_img_url,
     COUNT(comments.comment_id) AS comment_count
     FROM articles
-    LEFT JOIN comments ON comments.article_id = articles.article_id
-    GROUP BY articles.article_id
-    ORDER BY articles.created_at DESC;`;
-    return db.query(queryStr).then(({ rows }) => {
-        return rows;
-    });
+    LEFT JOIN comments ON comments.article_id = articles.article_id `
+
+    let whereTopic = `WHERE topic=$1`
+
+    let groupBy = ` GROUP BY articles.article_id
+    ORDER BY articles.created_at DESC;`
+
+    let query = ``;
+
+    if (!topic) {
+        query += queryStrSelectJoin += groupBy
+        return db.query(query).then(({ rows }) => {
+            return rows;
+        });
+    }
+
+    else if (topic) {
+        query += queryStrSelectJoin += whereTopic += groupBy
+        return db.query(query, [topic]).then(({ rows }) => {
+            return rows;
+        });
+    }
 };

@@ -14,7 +14,9 @@ exports.patchArticle = (req, res, next) => {
 };
 
 exports.getArticles = (req, res, next) => {
-    selectAllArticles()
+    const topic = req.query
+
+    selectAllArticles(topic)
         .then((articles) => {
             return res.status(200).send({ articles });
         })

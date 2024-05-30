@@ -7,6 +7,24 @@ const db = require('../db/connection.js')
 beforeEach(() => seed(testData))
 afterAll(() => db.end());
 
+describe('GET /api/articles (topic query)', () => {
+    test('should accept a topic query, which filters the articles by the topic value specified in the query', () => {
+        return request(app)
+            .get('/api/articles?topic=cats')
+            .expect(200)
+            .then(({ body }) => {
+                expect(body).toContainKeys(['articles'])
+                expect(body.articles.length).toBe(testData.articleData.filter((article) => article.topic === 'cats').length)
+                body.articles.forEach((article) => {
+                    expect(article.topic).toEqual('cats')
+                })
+            })
+    });
+
+    // 200 - empty array if no articles for that topic
+    // 404 - topic that doesn't exist i.e. melons
+});
+
 describe('GET /api/users', () => {
     test('200 - should get all users', () => {
         return request(app)
