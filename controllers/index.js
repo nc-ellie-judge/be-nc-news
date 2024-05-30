@@ -3,4 +3,5 @@ module.exports = {
     ...require("./articles.controllers.js"),
     ...require("./endpoints.controllers.js"),
     ...require("./topics.controllers.js"),
+    ...require("./users.controllers.js"),
 };

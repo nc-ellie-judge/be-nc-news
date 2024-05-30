@@ -7,6 +7,25 @@ const db = require('../db/connection.js')
 beforeEach(() => seed(testData))
 afterAll(() => db.end());
 
+describe('GET /api/users', () => {
+    test('200 - should get all users', () => {
+        return request(app)
+            .get('/api/users')
+            .expect(200)
+            .then(({ body }) => {
+                expect(body).toHaveProperty(['users'])
+                expect(body.users.length).toBe(testData.userData.length)
+                body.users.forEach((user) => {
+                    expect(user).toMatchObject({
+                        username: expect.any(String),
+                        name: expect.any(String),
+                        avatar_url: expect.any(String)
+                    })
+                })
+            })
+    });
+});
+
 describe('DELETE /api/comments/:comment_id', () => {
     test('204 - should delete the given comment by comment_id', () => {
         return request(app)
@@ -324,7 +343,7 @@ describe('GET /api/articles', () => {
             .expect(200)
             .then(({ body }) => {
                 expect(body).toContainKeys(['articles']);
-                expect(body.articles.length).toBe(13);
+                expect(body.articles.length).toBe(testData.articleData.length)
                 body.articles.forEach((article) => {
                     expect(article).toHaveProperty('author');
                     expect(article).toHaveProperty('title');
@@ -342,7 +361,7 @@ describe('GET /api/articles', () => {
             .get('/api/articles')
             .expect(200)
             .then(({ body }) => {
-                expect(body.articles.length).toBe(13);
+                expect(body.articles.length).toBe(testData.articleData.length);
                 body.articles.forEach((article) => {
                     expect(article).not.toHaveProperty('body');
                 })
@@ -353,7 +372,7 @@ describe('GET /api/articles', () => {
             .get('/api/articles')
             .expect(200)
             .then(({ body }) => {
-                expect(body.articles.length).toBe(13);
+                expect(body.articles.length).toBe(testData.articleData.length);
                 expect(body.articles).toBeSortedBy('created_at', {
                     descending: true
                 });
@@ -435,7 +454,7 @@ describe('GET /api/topics', () => {
             .expect(200)
             .then(({ body }) => {
                 expect(body).toContainKeys(['topics']);
-                expect(body.topics.length).toBe(3);
+                expect(body.topics.length).toBe(testData.topicData.length);
                 expect(body.topics[0]).toContainKeys(['slug', 'description']);
             })
     });
