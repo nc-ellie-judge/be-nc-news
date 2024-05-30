@@ -40,13 +40,6 @@ exports.updateArticle = (article_id, patch) => {
         });
 };
 
-
-// todo: split out selectAllArticles and selectArticlesByTopic
-
-// todo: create a getValidTopics function (perhaps in topics model) ✅
-
-// topic -> 
-
 exports.selectArticlesByTopic = ({ topic }) => {
     const query = `SELECT articles.author, articles.title, 
     articles.article_id, articles.topic, articles.created_at, 
@@ -58,7 +51,6 @@ exports.selectArticlesByTopic = ({ topic }) => {
     GROUP BY articles.article_id
     ORDER BY articles.created_at DESC;`
 
-
     if (topic) {
         return db.query(query, [topic]).then(({ rows }) => {
             return rows;
@@ -68,8 +60,6 @@ exports.selectArticlesByTopic = ({ topic }) => {
 }
 
 exports.selectAllArticles = () => {
-
-    // call select all topics and check topic exists in here
     const query = `SELECT articles.author, articles.title, 
     articles.article_id, articles.topic, articles.created_at, 
     articles.votes, articles.article_img_url,
@@ -82,5 +72,4 @@ exports.selectAllArticles = () => {
     return db.query(query).then(({ rows }) => {
         return rows;
     });
-
 };
