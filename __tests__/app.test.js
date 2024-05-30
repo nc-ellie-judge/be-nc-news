@@ -343,7 +343,7 @@ describe('GET /api/articles', () => {
             .expect(200)
             .then(({ body }) => {
                 expect(body).toContainKeys(['articles']);
-                expect(body.articles.length).toBe(13);
+                expect(body.articles.length).toBe(testData.articleData.length)
                 body.articles.forEach((article) => {
                     expect(article).toHaveProperty('author');
                     expect(article).toHaveProperty('title');
@@ -361,7 +361,7 @@ describe('GET /api/articles', () => {
             .get('/api/articles')
             .expect(200)
             .then(({ body }) => {
-                expect(body.articles.length).toBe(13);
+                expect(body.articles.length).toBe(testData.articleData.length);
                 body.articles.forEach((article) => {
                     expect(article).not.toHaveProperty('body');
                 })
@@ -372,7 +372,7 @@ describe('GET /api/articles', () => {
             .get('/api/articles')
             .expect(200)
             .then(({ body }) => {
-                expect(body.articles.length).toBe(13);
+                expect(body.articles.length).toBe(testData.articleData.length);
                 expect(body.articles).toBeSortedBy('created_at', {
                     descending: true
                 });
@@ -454,7 +454,7 @@ describe('GET /api/topics', () => {
             .expect(200)
             .then(({ body }) => {
                 expect(body).toContainKeys(['topics']);
-                expect(body.topics.length).toBe(3);
+                expect(body.topics.length).toBe(testData.topicData.length);
                 expect(body.topics[0]).toContainKeys(['slug', 'description']);
             })
     });
