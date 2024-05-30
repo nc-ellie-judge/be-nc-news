@@ -5,7 +5,6 @@ exports.deleteComment = (comment_id) => {
 
     return db.query(queryStr, [comment_id])
         .then(({ rows }) => {
-            console.log(rows);
             if (rows.length === 0) {
                 return Promise.reject({ status: 404, message: "404 - Not Found" })
             }
