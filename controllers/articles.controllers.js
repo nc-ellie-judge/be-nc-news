@@ -1,9 +1,14 @@
-const { selectArticleById, selectAllArticles, updateArticle } = require("../models");
+const {
+    selectArticleById,
+    selectAllArticles,
+    updateArticle,
+    selectArticlesByTopic,
+    selectAllTopics,
+} = require("../models");
 
 exports.patchArticle = (req, res, next) => {
     const { article_id } = req.params;
     const patch = req.body;
-
     updateArticle(article_id, patch)
         .then((article) => {
             return res.status(200).send({ article });
@@ -14,13 +19,32 @@ exports.patchArticle = (req, res, next) => {
 };
 
 exports.getArticles = (req, res, next) => {
-    selectAllArticles()
-        .then((articles) => {
-            return res.status(200).send({ articles });
-        })
-        .catch((err) => {
-            next(err);
-        });
+    const topic = req.query;
+    if (topic.topic) {
+        // strip out into separate function?
+        selectAllTopics()
+            .then((topics) => {
+                const validTopics = topics.map((topic) => topic.slug);
+                if (!validTopics.includes(topic.topic)) {
+                    return Promise.reject({ status: 404, message: "404 - Not Found" });
+                } else {
+                    selectArticlesByTopic(topic).then((articles) => {
+                        return res.status(200).send({ articles });
+                    });
+                }
+            })
+            .catch((err) => {
+                next(err);
+            });
+    } else {
+        selectAllArticles()
+            .then((articles) => {
+                return res.status(200).send({ articles });
+            })
+            .catch((err) => {
+                next(err);
+            });
+    }
 };
 
 exports.getArticleById = (req, res, next) => {

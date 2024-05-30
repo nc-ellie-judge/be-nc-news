@@ -7,6 +7,38 @@ const db = require('../db/connection.js')
 beforeEach(() => seed(testData))
 afterAll(() => db.end());
 
+describe('GET /api/articles (topic query)', () => {
+    test('200 - should accept a topic query, which filters the articles by the topic value specified in the query', () => {
+        return request(app)
+            .get('/api/articles?topic=cats')
+            .expect(200)
+            .then(({ body }) => {
+                expect(body).toContainKeys(['articles'])
+                expect(body.articles.length).toBe(testData.articleData.filter((article) => article.topic === 'cats').length)
+                body.articles.forEach((article) => {
+                    expect(article.topic).toEqual('cats')
+                })
+            })
+    });
+    test('200 - should return empty array for a valid topic that doesnt have any articles related to it', () => {
+        return request(app)
+            .get('/api/articles?topic=paper')
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.articles.length).toBe(0)
+                expect(body.articles.length).toBe(testData.articleData.filter((article) => article.topic === 'paper').length)
+            })
+    });
+    test('404 - should return "Not Found" if topic does not exist', () => {
+        return request(app)
+            .get('/api/articles?topic=melons')
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.message).toBe("404 - Not Found")
+            })
+    });
+});
+
 describe('GET /api/users', () => {
     test('200 - should get all users', () => {
         return request(app)
@@ -333,7 +365,6 @@ describe('GET /api/articles/:article_id/comments', () => {
                 expect(body.message).toBe('404 - Not Found')
             })
     });
-
 });
 
 describe('GET /api/articles', () => {
