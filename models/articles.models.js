@@ -40,32 +40,47 @@ exports.updateArticle = (article_id, patch) => {
         });
 };
 
-exports.selectAllArticles = ({ topic }) => {
-    let queryStrSelectJoin = `SELECT articles.author, articles.title, 
+
+// todo: split out selectAllArticles and selectArticlesByTopic
+
+// todo: create a getValidTopics function (perhaps in topics model) ✅
+
+// topic -> 
+
+exports.selectArticlesByTopic = ({ topic }) => {
+    const query = `SELECT articles.author, articles.title, 
     articles.article_id, articles.topic, articles.created_at, 
     articles.votes, articles.article_img_url,
     COUNT(comments.comment_id) AS comment_count
     FROM articles
-    LEFT JOIN comments ON comments.article_id = articles.article_id `
-
-    let whereTopic = `WHERE topic=$1`
-
-    let groupBy = ` GROUP BY articles.article_id
+    LEFT JOIN comments ON comments.article_id = articles.article_id 
+    WHERE topic=$1
+    GROUP BY articles.article_id
     ORDER BY articles.created_at DESC;`
 
-    let query = ``;
 
-    if (!topic) {
-        query += queryStrSelectJoin += groupBy
-        return db.query(query).then(({ rows }) => {
-            return rows;
-        });
-    }
-
-    else if (topic) {
-        query += queryStrSelectJoin += whereTopic += groupBy
+    if (topic) {
         return db.query(query, [topic]).then(({ rows }) => {
             return rows;
         });
     }
+
+}
+
+exports.selectAllArticles = () => {
+
+    // call select all topics and check topic exists in here
+    const query = `SELECT articles.author, articles.title, 
+    articles.article_id, articles.topic, articles.created_at, 
+    articles.votes, articles.article_img_url,
+    COUNT(comments.comment_id) AS comment_count
+    FROM articles
+    LEFT JOIN comments ON comments.article_id = articles.article_id 
+    GROUP BY articles.article_id
+    ORDER BY articles.created_at DESC;`
+
+    return db.query(query).then(({ rows }) => {
+        return rows;
+    });
+
 };
