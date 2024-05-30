@@ -8,7 +8,7 @@ beforeEach(() => seed(testData))
 afterAll(() => db.end());
 
 describe('GET /api/users', () => {
-    test('should get all users', () => {
+    test('200 - should get all users', () => {
         return request(app)
             .get('/api/users')
             .expect(200)
