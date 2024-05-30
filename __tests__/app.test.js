@@ -11,6 +11,7 @@ describe('GET /api/users', () => {
     test('should get all users', () => {
         return request(app)
             .get('/api/users')
+            .expect(200)
             .then(({ body }) => {
                 expect(body).toHaveProperty(['users'])
                 body.users.forEach((user) => {
