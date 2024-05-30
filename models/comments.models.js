@@ -1,5 +1,23 @@
 const db = require("../db/connection.js");
 
+exports.deleteComment = (comment_id) => {
+    const queryStr = `DELETE FROM comments WHERE comment_id = $1 RETURNING *;`
+
+    return db.query(queryStr, [comment_id])
+        .then(({ rows }) => {
+            console.log(rows);
+            if (rows.length === 0) {
+                return Promise.reject({ status: 404, message: "404 - Not Found" })
+            }
+            else {
+                return rows[0]
+            }
+        })
+        .catch((err) => {
+            return Promise.reject(err)
+        })
+}
+
 exports.insertNewComment = (article_id, newComment) => {
     const expectedKeys = ["body", "username"];
     const hasAllKeys = expectedKeys.every((key) =>

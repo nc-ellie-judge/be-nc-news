@@ -7,8 +7,50 @@ const db = require('../db/connection.js')
 beforeEach(() => seed(testData))
 afterAll(() => db.end());
 
-describe('PATCH /api/articles/:article_id', () => {
+describe('DELETE /api/comments/:comment_id', () => {
+    test('204 - should delete the given comment by comment_id', () => {
+        return request(app)
+            .delete('/api/comments/1')
+            .expect(204)
+            .then(() => {
+                return request(app)
+                    .get("/api/articles/9/comments")
+                    .expect(200)
+                    .then(({ body }) => {
+                        body.comments.forEach((comment) => {
+                            expect(comment.comment_id).not.toBe(1)
+                        })
+                    })
+            })
+    });
+    test('404 - if sent valid comment_id but the id does not exist', () => {
+        return request(app)
+            .delete('/api/comments/0')
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.message).toBe('404 - Not Found')
+            })
+    });
+    test('400 - throws an error if sent invalid comment_id', () => {
+        return request(app)
+            .delete('/api/comments/NotAnId')
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.message).toBe('400 - Invalid Input')
+            })
+    });
+    test('404 - throws an error if sent invalid endpoint', () => {
+        return request(app)
+            .delete('/api/SpellingMistake/1')
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.message).toBe('404 - Not Found')
+            })
+    });
 
+});
+
+describe('PATCH /api/articles/:article_id', () => {
     test('200 - patch an article by article_id', () => {
         const newPatch = {
             inc_votes: 1
