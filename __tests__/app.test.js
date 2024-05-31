@@ -7,6 +7,34 @@ const db = require('../db/connection.js')
 beforeEach(() => seed(testData))
 afterAll(() => db.end());
 
+// title: "Living in the shadow of a great man",
+// topic: "mitch",
+// author: "butter_bridge",
+// body: "I find this existence challenging",
+// created_at: 1594329060000,
+// votes: 100,
+// article_img_url:
+
+describe('GET /api/articles (sorting queries)', () => {
+
+    // /api/articles?sort_by=column_name
+    // /api/articles?topic=cats&sort_by=column_name&order=asc
+    // /api/articles?topic=cats
+    // '/api/articles?topic=cats&sort_by=title&order=asc'
+
+    test('should accept a "sort_by" query which sorts articles by any valid column in descending order', () => {
+        return request(app)
+            .get('/api/articles?sort_by=votes')
+            .expect(200)
+            .then(({ body }) => {
+                expect(body.articles.length).toBe(testData.articleData.length);
+                expect(body.articles).toBeSortedBy('votes', {
+                    descending: true
+                });
+            })
+    });
+});
+
 describe('GET /api/articles/:article_id (comment_count)', () => {
     test('an article response object should include the specified articles comment_count', () => {
         return request(app)
@@ -43,7 +71,6 @@ describe('GET /api/articles (topic query)', () => {
                         "created_at",
                         "votes",
                         "article_img_url",
-                        "body",
                         "comment_count",
                     ])
                 })
