@@ -1,4 +1,5 @@
 const db = require("../db/connection.js");
+const { selectAllTopics } = require("./topics.models.js");
 
 exports.selectArticleById = (article_id) => {
     const query = `SELECT articles.author, articles.title, 
@@ -49,36 +50,44 @@ exports.updateArticle = (article_id, patch) => {
         });
 };
 
-exports.selectArticlesByTopic = ({ topic }) => {
-    const query = `SELECT articles.author, articles.title, 
-    articles.article_id, articles.topic, articles.created_at, 
-    articles.votes, articles.article_img_url, articles.body,
-    COUNT(comments.comment_id) AS comment_count
-    FROM articles
-    LEFT JOIN comments ON comments.article_id = articles.article_id 
-    WHERE topic=$1
-    GROUP BY articles.article_id
-    ORDER BY articles.created_at DESC;`
-
-    if (topic) {
-        return db.query(query, [topic]).then(({ rows }) => {
-            return rows;
-        });
-    }
-
-}
-
-exports.selectAllArticles = () => {
-    const query = `SELECT articles.author, articles.title, 
+exports.selectArticles = ({ topic, sort_by = 'created_at', order = 'DESC' }) => {
+    let query = `SELECT articles.author, articles.title, 
     articles.article_id, articles.topic, articles.created_at, 
     articles.votes, articles.article_img_url,
     COUNT(comments.comment_id) AS comment_count
     FROM articles
-    LEFT JOIN comments ON comments.article_id = articles.article_id 
-    GROUP BY articles.article_id
-    ORDER BY articles.created_at DESC;`
+    LEFT JOIN comments ON comments.article_id = articles.article_id`;
 
-    return db.query(query).then(({ rows }) => {
-        return rows;
-    });
+    const queryParams = [];
+
+    if (topic) {
+        return selectAllTopics()
+            .then((topics) => {
+                const validTopics = topics.map((topic) => topic.slug);
+                if (!validTopics.includes(topic)) {
+                    return Promise.reject({ status: 404, message: "404 - Not Found" });
+                }
+
+                query += ` WHERE topic=$1`;
+                queryParams.push(topic);
+
+                query += ` GROUP BY articles.article_id
+                ORDER BY ${sort_by} ${order};`;
+
+                return db.query(query, queryParams);
+            })
+            .then(({ rows }) => {
+                return rows;
+            })
+            .catch((err) => {
+                return Promise.reject(err);
+            });
+    } else {
+        query += ` GROUP BY articles.article_id
+        ORDER BY ${sort_by} DESC;`;
+
+        return db.query(query, queryParams).then(({ rows }) => {
+            return rows;
+        });
+    }
 };
