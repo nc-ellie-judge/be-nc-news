@@ -7,21 +7,7 @@ const db = require('../db/connection.js')
 beforeEach(() => seed(testData))
 afterAll(() => db.end());
 
-// title: "Living in the shadow of a great man",
-// topic: "mitch",
-// author: "butter_bridge",
-// body: "I find this existence challenging",
-// created_at: 1594329060000,
-// votes: 100,
-// article_img_url:
-
 describe('GET /api/articles (sorting queries)', () => {
-
-    // /api/articles?sort_by=column_name
-    // /api/articles?topic=cats&sort_by=column_name&order=asc
-    // /api/articles?topic=cats
-    // '/api/articles?topic=cats&sort_by=title&order=asc'
-
     it.each([
         ["title", 200],
         ["topic", 200],
@@ -29,7 +15,7 @@ describe('GET /api/articles (sorting queries)', () => {
         ["created_at", 200],
         ["votes", 200],
         ["article_img_url", 200],
-    ])("when the query parameter is sort_by='%s' it sorts articles by any valid column in descending order", (column, expected) => {
+    ])("200 - it sorts articles by '%s' in DESCENDING order (by default)", (column, expected) => {
         return request(app)
             .get(`/api/articles?sort_by=${column}`)
             .expect(expected)
@@ -40,6 +26,48 @@ describe('GET /api/articles (sorting queries)', () => {
                 });
             })
     });
+
+    it.each([
+        ["title", 200],
+        ["topic", 200],
+        ["author", 200],
+        ["created_at", 200],
+        ["votes", 200],
+        ["article_img_url", 200],
+    ])("200 - it sorts articles by '%s' in ASCENDING order when passed &order=asc", (column, expected) => {
+        return request(app)
+            .get(`/api/articles?sort_by=${column}&order=asc`)
+            .expect(expected)
+            .then(({ body }) => {
+                expect(body.articles.length).toBe(testData.articleData.length);
+                expect(body.articles).toBeSortedBy(column, {
+                    descending: false
+                });
+            })
+    });
+
+    test('400 - should throw an error if passed an invalid sort column parameter', () => {
+        return request(app)
+            .get('/api/articles?sort_by=bananas')
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.message).toBe('400 - Bad Request');
+            })
+    });
+
+    test('400 - should throw an error if passed an invalid order direction', () => {
+        return request(app)
+            .get('/api/articles?order=bananas')
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.message).toBe('400 - Bad Request');
+            })
+    });
+
+    // /api/articles?sort_by=column_name
+    // /api/articles?topic=cats&sort_by=column_name&order=asc
+    // /api/articles?topic=cats
+    // '/api/articles?topic=cats&sort_by=title&order=asc'
 });
 
 describe('GET /api/articles/:article_id (comment_count)', () => {

@@ -51,6 +51,17 @@ exports.updateArticle = (article_id, patch) => {
 };
 
 exports.selectArticles = ({ topic, sort_by = 'created_at', order = 'DESC' }) => {
+    const validSortColumns = ['author', 'title', 'article_id', 'topic', 'created_at', 'votes', 'article_img_url'];
+    const validOrderDirections = ['ASC', 'DESC'];
+
+    if (!validSortColumns.includes(sort_by)) {
+        return Promise.reject({ status: 400, message: '400 - Bad Request' })
+    }
+
+    if (!validOrderDirections.includes(order.toUpperCase())) {
+        return Promise.reject({ status: 400, message: '400 - Bad Request' })
+    }
+
     let query = `SELECT articles.author, articles.title, 
     articles.article_id, articles.topic, articles.created_at, 
     articles.votes, articles.article_img_url,
@@ -84,7 +95,7 @@ exports.selectArticles = ({ topic, sort_by = 'created_at', order = 'DESC' }) => 
             });
     } else {
         query += ` GROUP BY articles.article_id
-        ORDER BY ${sort_by} DESC;`;
+        ORDER BY ${sort_by} ${order};`;
 
         return db.query(query, queryParams).then(({ rows }) => {
             return rows;
