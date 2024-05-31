@@ -22,13 +22,20 @@ describe('GET /api/articles (sorting queries)', () => {
     // /api/articles?topic=cats
     // '/api/articles?topic=cats&sort_by=title&order=asc'
 
-    test('should accept a "sort_by" query which sorts articles by any valid column in descending order', () => {
+    it.each([
+        ["title", 200],
+        ["topic", 200],
+        ["author", 200],
+        ["created_at", 200],
+        ["votes", 200],
+        ["article_img_url", 200],
+    ])("when the query parameter is sort_by='%s' it sorts articles by any valid column in descending order", (column, expected) => {
         return request(app)
-            .get('/api/articles?sort_by=votes')
-            .expect(200)
+            .get(`/api/articles?sort_by=${column}`)
+            .expect(expected)
             .then(({ body }) => {
                 expect(body.articles.length).toBe(testData.articleData.length);
-                expect(body.articles).toBeSortedBy('votes', {
+                expect(body.articles).toBeSortedBy(column, {
                     descending: true
                 });
             })
