@@ -7,6 +7,70 @@ const db = require('../db/connection.js')
 beforeEach(() => seed(testData))
 afterAll(() => db.end());
 
+describe('GET /api/articles (sorting queries)', () => {
+    it.each([
+        ["title", 200],
+        ["topic", 200],
+        ["author", 200],
+        ["created_at", 200],
+        ["votes", 200],
+        ["article_img_url", 200],
+    ])("200 - it sorts articles by '%s' in DESCENDING order (by default)", (column, expected) => {
+        return request(app)
+            .get(`/api/articles?sort_by=${column}`)
+            .expect(expected)
+            .then(({ body }) => {
+                expect(body.articles.length).toBe(testData.articleData.length);
+                expect(body.articles).toBeSortedBy(column, {
+                    descending: true
+                });
+            })
+    });
+
+    it.each([
+        ["title", 200],
+        ["topic", 200],
+        ["author", 200],
+        ["created_at", 200],
+        ["votes", 200],
+        ["article_img_url", 200],
+    ])("200 - it sorts articles by '%s' in ASCENDING order when passed &order=asc", (column, expected) => {
+        return request(app)
+            .get(`/api/articles?sort_by=${column}&order=asc`)
+            .expect(expected)
+            .then(({ body }) => {
+                expect(body.articles.length).toBe(testData.articleData.length);
+                expect(body.articles).toBeSortedBy(column, {
+                    descending: false
+                });
+            })
+    });
+
+    test('400 - should throw an error if passed an invalid sort column parameter', () => {
+        return request(app)
+            .get('/api/articles?sort_by=bananas')
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.message).toBe('400 - Bad Request');
+            })
+    });
+
+    test('400 - should throw an error if passed an invalid order direction', () => {
+        return request(app)
+            .get('/api/articles?order=bananas')
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.message).toBe('400 - Bad Request');
+            })
+    });
+
+    //TODO: test these work:
+    // /api/articles?sort_by=column_name
+    // /api/articles?topic=cats&sort_by=column_name&order=asc
+    // /api/articles?topic=cats
+    // '/api/articles?topic=cats&sort_by=title&order=asc'
+});
+
 describe('GET /api/articles/:article_id (comment_count)', () => {
     test('an article response object should include the specified articles comment_count', () => {
         return request(app)
@@ -43,7 +107,6 @@ describe('GET /api/articles (topic query)', () => {
                         "created_at",
                         "votes",
                         "article_img_url",
-                        "body",
                         "comment_count",
                     ])
                 })
