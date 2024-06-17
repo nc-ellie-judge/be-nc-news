@@ -64,6 +64,7 @@ describe('GET /api/articles (sorting queries)', () => {
             })
     });
 
+    //TODO: test these work:
     // /api/articles?sort_by=column_name
     // /api/articles?topic=cats&sort_by=column_name&order=asc
     // /api/articles?topic=cats
